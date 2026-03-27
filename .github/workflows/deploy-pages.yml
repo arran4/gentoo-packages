@@ -5,6 +5,8 @@ on:
     - cron: '0 0 * * *'  # Nightly
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - '.github/workflows/deploy-pages.yml'
 
