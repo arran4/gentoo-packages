@@ -1,0 +1,49 @@
+name: Deploy Gentoo Overlays Static Site
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Nightly
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/deploy-pages.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install g2
+        uses: arran4/g2-action@v1
+        with:
+          version: 'latest'
+
+      - name: Generate static site
+        run: |
+          g2 overlays site generate -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
