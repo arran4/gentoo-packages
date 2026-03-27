@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '0 0 * * *'  # Nightly
   workflow_dispatch:
+    inputs:
+      g2_version:
+        description: 'g2 version to use'
+        required: false
+        default: 'latest'
+        type: string
   push:
     branches:
       - main
@@ -29,7 +35,7 @@ jobs:
       - name: Install g2
         uses: arran4/g2-action@v1
         with:
-          version: 'latest'
+          version: ${{ inputs.g2_version || 'latest' }}
 
       - name: Generate static site
         run: |
