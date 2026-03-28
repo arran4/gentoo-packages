@@ -22,7 +22,7 @@ on:
       - '.github/workflows/deploy-pages.yml'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -46,6 +46,25 @@ jobs:
       - name: Generate static site
         run: |
           g2 overlays site generate -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
+
+      - name: Zip search data
+        run: |
+          cd _site/search/data
+          zip -r ../../../search-data.zip ./*.json
+
+      - name: Increment Tag
+        id: tag
+        uses: arran4/git-tag-inc-action@v1
+        with:
+          action: 'patch'
+
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push --tags
+          TAG=$(git describe --tags --abbrev=0)
+          gh release create "$TAG" search-data.zip --title "Release $TAG" --notes "Automated release of search data"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
