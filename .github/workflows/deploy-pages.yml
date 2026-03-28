@@ -37,6 +37,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Install g2
         uses: arran4/g2-action@v1
@@ -60,7 +63,7 @@ jobs:
 
       - name: Increment Tag
         id: tag
-        uses: arran4/git-tag-inc-action@v1
+        uses: arran4/git-tag-inc-action@v1.1
         with:
           action: 'patch'
 
