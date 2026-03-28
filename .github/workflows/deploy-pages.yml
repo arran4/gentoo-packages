@@ -52,6 +52,11 @@ jobs:
           cd _site/search/data
           zip -r ../../../search-data.zip ./*.json
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Increment Tag
         id: tag
         uses: arran4/git-tag-inc-action@v1
