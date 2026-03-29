@@ -65,7 +65,7 @@ jobs:
         id: tag
         uses: arran4/git-tag-inc-action@v1
         with:
-          action: 'patch'
+          action: '-repeating patch'
 
       - name: Create Release
         env:
