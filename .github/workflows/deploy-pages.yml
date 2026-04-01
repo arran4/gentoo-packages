@@ -2,7 +2,7 @@ name: Deploy Gentoo Overlays Static Site
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Nightly
+    - cron: '17 0 * * *'  # Nightly
   workflow_dispatch:
     inputs:
       g2_version:
