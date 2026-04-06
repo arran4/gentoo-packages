@@ -48,7 +48,7 @@ jobs:
 
       - name: Generate static site
         run: |
-          g2 overlays site generate -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
+          g2 overlays site generate -concurrency 1 -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
 
       - name: Zip search data
         run: |
