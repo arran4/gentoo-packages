@@ -47,6 +47,8 @@ jobs:
           version: ${{ inputs.g2_version || 'latest' }}
 
       - name: Generate static site
+        env:
+          GOMEMLIMIT: 5GiB
         run: |
           g2 overlays site generate -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
 
