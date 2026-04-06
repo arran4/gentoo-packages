@@ -1,5 +1,8 @@
 name: Deploy Gentoo Overlays Static Site
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   schedule:
     - cron: '17 0 * * *'  # Nightly
