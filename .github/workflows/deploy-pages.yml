@@ -18,6 +18,11 @@ on:
         required: false
         default: 120
         type: number
+      concurrency:
+        description: 'Concurrency level for g2 overlays site generate'
+        required: false
+        default: 8
+        type: number
   push:
     branches:
       - main
@@ -53,7 +58,7 @@ jobs:
         env:
           GOMEMLIMIT: 5GiB
         run: |
-          g2 overlays site generate -concurrency 8 -profile -profile-out _site/profile.txt -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
+          g2 overlays site generate -concurrency ${{ inputs.concurrency || 8 }} -profile -profile-out _site/profile.txt -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
 
       - name: Zip search data
         run: |
