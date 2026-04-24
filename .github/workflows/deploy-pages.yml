@@ -19,7 +19,7 @@ on:
         default: 120
         type: number
       concurrency:
-        description: 'Concurrency for g2'
+        description: 'Concurrency level for g2 overlays site generate'
         required: false
         default: 8
         type: number
