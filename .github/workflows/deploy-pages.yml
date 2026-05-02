@@ -16,7 +16,7 @@ on:
       timeout:
         description: 'Timeout in minutes'
         required: false
-        default: 120
+        default: 180
         type: number
       concurrency:
         description: 'Concurrency level for g2 overlays site generate'
@@ -41,7 +41,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ fromJSON(inputs.timeout || 120) }}
+    timeout-minutes: ${{ fromJSON(inputs.timeout || 180) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -100,7 +100,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ fromJSON(inputs.timeout || 120) }}
+    timeout-minutes: ${{ fromJSON(inputs.timeout || 180) }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
