@@ -58,7 +58,7 @@ jobs:
         env:
           GOMEMLIMIT: 5GiB
         run: |
-          g2 overlays site generate -concurrency ${{ inputs.concurrency || 8 }} -profile -profile-out _site/profile.txt -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
+          g2 overlays site generate -concurrency ${{ inputs.concurrency || 8 }} -smart-mode -profile -profile-out _site/profile.txt -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
 
       - name: Zip search data
         run: |
