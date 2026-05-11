@@ -33,6 +33,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  workflows: write
 
 concurrency:
   group: pages-${{ github.ref }}
@@ -70,12 +71,6 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Workaround: GitHub Actions GITHUB_TOKEN cannot push a tag to a commit that modifies workflows.
-          # If the current commit modifies a workflow, we create an empty commit so the tag is safe to push.
-          if git diff-tree --no-commit-id --name-only -r HEAD | grep -q "^\.github/workflows/"; then
-            git commit --allow-empty -m "Automated empty commit to allow tagging"
-          fi
 
       - name: Increment Tag
         id: tag
