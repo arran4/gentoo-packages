@@ -33,7 +33,6 @@ permissions:
   contents: write
   pages: write
   id-token: write
-  workflows: write
 
 concurrency:
   group: pages-${{ github.ref }}
@@ -71,6 +70,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
 
       - name: Increment Tag
         id: tag
