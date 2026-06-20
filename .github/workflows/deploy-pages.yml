@@ -63,7 +63,7 @@ jobs:
       - name: Zip search data
         run: |
           cd _site/search/data
-          zip -r ../../../search-data.zip ./*.json
+          zip -r ../../../search-data.zip . -i '*.json'
           cp ../../../search-data.zip ../../search-data.zip
 
       - name: Configure Git
