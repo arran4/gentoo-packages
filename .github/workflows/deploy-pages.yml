@@ -43,6 +43,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ fromJSON(inputs.timeout || 180) }}
     steps:
+      - name: Free disk space
+        run: |
+          if [ ! -d "/usr/local/lib/android" ]; then
+            echo "Error: Directory /usr/local/lib/android does not exist."
+            exit 1
+          fi
+
+          BEFORE=$(df -m / | awk 'NR==2 {print $4}')
+          echo "Free space before: ${BEFORE} MB"
+
+          sudo rm -rf /usr/local/lib/android
+
+          AFTER=$(df -m / | awk 'NR==2 {print $4}')
+          echo "Free space after: ${AFTER} MB"
+
+          FREED=$((AFTER - BEFORE))
+          echo "Freed space: ${FREED} MB"
+
+          if [ "$FREED" -lt 1000 ]; then
+            echo "Error: Did not free up enough space (less than 1000 MB). Directory might be empty or irrelevant."
+            exit 1
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
