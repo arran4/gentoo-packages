@@ -43,6 +43,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ fromJSON(inputs.timeout || 180) }}
     steps:
+      - name: Free disk space
+        run: sudo rm -rf /usr/local/lib/android
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
