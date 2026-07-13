@@ -1,5 +1,7 @@
 # gentoo-packages
 
+Please visit the generated site at: [arran4.github.io/gentoo-packages/](https://arran4.github.io/gentoo-packages/)
+
 This repository generates and hosts the Gentoo overlays static site.
 
 It uses [g2](https://github.com/arran4/g2) to parse `repositories.xml` from Gentoo's API and generate a static HTML website of all overlays and packages.
