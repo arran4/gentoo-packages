@@ -83,6 +83,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.25.x'
+          cache: false
 
       - name: Build and install g2 from branch or commit
         if: ${{ inputs.g2_version != '' && inputs.g2_version != 'latest' && !startsWith(inputs.g2_version, 'v0.') && !startsWith(inputs.g2_version, 'v1.') }}
