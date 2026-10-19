@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       g2_version:
-        description: 'g2 version to use'
+        description: 'g2 release version (e.g. latest, v0.0.104) or git branch/commit SHA'
         required: false
         default: 'latest'
         type: string
@@ -72,6 +72,8 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      # Source-ref installation is handled by g2-action (arran4/g2-action#21).
+      # Requires a v1 release including source-ref support before merge.
       - name: Install g2
         uses: arran4/g2-action@v1
         with:
@@ -82,6 +84,10 @@ jobs:
           GOMEMLIMIT: 5GiB
         run: |
           g2 overlays site generate -concurrency ${{ inputs.concurrency || 8 }} -smart-mode -profile -profile-out _site/profile.txt -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
+          if [ -f _site/profile.txt ]; then
+            echo "=== Site Generation Profile ==="
+            cat _site/profile.txt
+          fi
 
       - name: Zip search data
         run: |
@@ -90,18 +96,20 @@ jobs:
           cp ../../../search-data.zip ../../search-data.zip
 
       - name: Configure Git
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-
       - name: Increment Tag
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         id: tag
         uses: arran4/git-tag-inc-action@v1
         with:
           action: '-repeating patch'
 
       - name: Create Release
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -110,9 +118,11 @@ jobs:
           gh release create "$TAG" search-data.zip --title "Release $TAG" --notes "Automated release of search data"
 
       - name: Setup Pages
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
