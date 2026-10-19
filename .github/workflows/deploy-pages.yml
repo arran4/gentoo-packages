@@ -72,31 +72,12 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Install g2 from release
-        if: ${{ inputs.g2_version == '' || inputs.g2_version == 'latest' || startsWith(inputs.g2_version, 'v0.') || startsWith(inputs.g2_version, 'v1.') }}
+      # Source-ref installation is handled by g2-action (arran4/g2-action#21).
+      # Requires a v1 release including source-ref support before merge.
+      - name: Install g2
         uses: arran4/g2-action@v1
         with:
           version: ${{ inputs.g2_version || 'latest' }}
-
-      - name: Setup Go for source build
-        if: ${{ inputs.g2_version != '' && inputs.g2_version != 'latest' && !startsWith(inputs.g2_version, 'v0.') && !startsWith(inputs.g2_version, 'v1.') }}
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.25.x'
-          cache: false
-
-      - name: Build and install g2 from branch or commit
-        if: ${{ inputs.g2_version != '' && inputs.g2_version != 'latest' && !startsWith(inputs.g2_version, 'v0.') && !startsWith(inputs.g2_version, 'v1.') }}
-        run: |
-          TMP_G2=$(mktemp -d)
-          git clone https://github.com/arran4/g2.git "$TMP_G2"
-          cd "$TMP_G2"
-          git checkout "${{ inputs.g2_version }}"
-          COMMIT_SHA=$(git rev-parse --short HEAD)
-          sudo mkdir -p /opt/g2
-          sudo "$(which go)" build -ldflags "-X main.version=ref-${COMMIT_SHA}" -o /opt/g2/g2 ./cmd/g2
-          echo "/opt/g2" >> "$GITHUB_PATH"
-          rm -rf "$TMP_G2"
 
       - name: Generate static site
         env:
