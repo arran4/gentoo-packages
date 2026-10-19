@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       g2_version:
-        description: 'g2 version to use'
+        description: 'g2 release version (e.g. latest, v0.0.104) or git branch/commit SHA'
         required: false
         default: 'latest'
         type: string
@@ -72,16 +72,40 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      - name: Install g2
+      - name: Install g2 from release
+        if: ${{ inputs.g2_version == '' || inputs.g2_version == 'latest' || startsWith(inputs.g2_version, 'v0.') || startsWith(inputs.g2_version, 'v1.') }}
         uses: arran4/g2-action@v1
         with:
           version: ${{ inputs.g2_version || 'latest' }}
+
+      - name: Setup Go for source build
+        if: ${{ inputs.g2_version != '' && inputs.g2_version != 'latest' && !startsWith(inputs.g2_version, 'v0.') && !startsWith(inputs.g2_version, 'v1.') }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.x'
+
+      - name: Build and install g2 from branch or commit
+        if: ${{ inputs.g2_version != '' && inputs.g2_version != 'latest' && !startsWith(inputs.g2_version, 'v0.') && !startsWith(inputs.g2_version, 'v1.') }}
+        run: |
+          TMP_G2=$(mktemp -d)
+          git clone https://github.com/arran4/g2.git "$TMP_G2"
+          cd "$TMP_G2"
+          git checkout "${{ inputs.g2_version }}"
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          sudo mkdir -p /opt/g2
+          sudo "$(which go)" build -ldflags "-X main.version=ref-${COMMIT_SHA}" -o /opt/g2/g2 ./cmd/g2
+          echo "/opt/g2" >> "$GITHUB_PATH"
+          rm -rf "$TMP_G2"
 
       - name: Generate static site
         env:
           GOMEMLIMIT: 5GiB
         run: |
           g2 overlays site generate -concurrency ${{ inputs.concurrency || 8 }} -smart-mode -profile -profile-out _site/profile.txt -out _site https://raw.githubusercontent.com/gentoo/api-gentoo-org/master/files/overlays/repositories.xml
+          if [ -f _site/profile.txt ]; then
+            echo "=== Site Generation Profile ==="
+            cat _site/profile.txt
+          fi
 
       - name: Zip search data
         run: |
@@ -90,18 +114,20 @@ jobs:
           cp ../../../search-data.zip ../../search-data.zip
 
       - name: Configure Git
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-
       - name: Increment Tag
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         id: tag
         uses: arran4/git-tag-inc-action@v1
         with:
           action: '-repeating patch'
 
       - name: Create Release
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -110,9 +136,11 @@ jobs:
           gh release create "$TAG" search-data.zip --title "Release $TAG" --notes "Automated release of search data"
 
       - name: Setup Pages
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: '_site'
